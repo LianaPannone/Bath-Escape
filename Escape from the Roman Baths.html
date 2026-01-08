@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape from the Roman Baths</title>
+    <style>
+        :root {
+            --color-primary: #1f8080;
+            --color-primary-hover: #1a6b6b;
+            --color-bg: #f5f1e8;
+            --color-surface: #ffffff;
+            --color-text: #1a1a1a;
+            --color-text-light: #666;
+            --color-error: #c01530;
+            --color-success: #218c3d;
+            --color-warning: #a84d2f;
+            --color-lock-bg: #f0e6d2;
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1f8080 0%, #2d8b8b 100%);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .story-card {
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--color-primary);
+        }
+
+        .task-card {
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--color-lock-bg);
+        }
+
+        .task-card.completed {
+            border: 2px solid var(--color-success);
+            background: #f0fdf4;
+        }
+
+        .task-num {
+            display: inline-block;
+            background: var(--color-primary);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .task-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-content {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--color-lock-bg);
+            border-radius: 6px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: var(--color-primary);
+            background: #f9f9f9;
+        }
+
+        .option.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            margin: 20px 0;
+            align-items: start;
+        }
+
+        .matching-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .matching-item {
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .matching-item.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .matching-arrow {
+            font-size: 1.5em;
+            text-align: center;
+            color: var(--color-primary);
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(31, 128, 128, 0.1);
+        }
+
+        .code-display {
+            background: var(--color-lock-bg);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .code-input {
+            flex: 1;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(31, 128, 128, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--color-text);
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #bee5eb;
+        }
+
+        .final-code-card {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 30px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .final-code-card h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .final-code-input {
+            font-size: 1.5em;
+            letter-spacing: 3px;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+            display: none !important;
+        }
+
+        .success-screen.show {
+            display: flex !important;
+        }
+
+        .success-screen h1 {
+            font-size: 3em;
+            margin: 0 0 20px 0;
+            animation: bounce 0.6s;
+        }
+
+        .success-screen p {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            animation: fall 3s linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .progress {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .progress-item {
+            text-align: center;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 2px solid #ddd;
+        }
+
+        .progress-item.completed {
+            background: var(--color-success);
+            color: white;
+            border-color: var(--color-success);
+        }
+
+        .riddle-answer {
+            font-size: 1.1em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .matching-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .matching-arrow {
+                display: none;
+            }
+
+            .progress {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+
+            .progress-item {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER WITH TIMER -->
+        <div class="header">
+            <div>
+                <h1>🔐 Escape from the Roman Baths</h1>
+                <p>You are trapped in Bath's ancient temple. Solve all puzzles to escape!</p>
+                <div class="timer" id="timer">
+                    ⏱️ Time remaining: <span id="timeDisplay">30:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRESS TRACKER -->
+        <div class="progress" id="progress">
+            <div class="progress-item">Task 1<br><span id="code1">?</span></div>
+            <div class="progress-item">Task 2<br><span id="code2">?</span></div>
+            <div class="progress-item">Task 3<br><span id="code3">?</span></div>
+            <div class="progress-item">Task 4<br><span id="code4">?</span></div>
+            <div class="progress-item">Task 5<br><span id="code5">?</span></div>
+        </div>
+
+        <!-- STORY CARD -->
+        <div class="story-card">
+            <h2>📖 Your Mission</h2>
+            <p>You are visiting the Roman Baths in Bath. Suddenly, the doors close! You have 30 minutes to escape.</p>
+            <p><strong>Your mission:</strong> Solve all the challenges. Each task gives you a number. Use the numbers to open the final lock.</p>
+            <p style="text-align: center; font-size: 1.1em; font-weight: bold; color: var(--color-primary);">🎯 Ready? Let's go!</p>
+        </div>
+
+        <!-- TASK 1: MAP PUZZLE -->
+        <div class="task-card" id="task1">
+            <div class="task-title">
+                <span class="task-num">1</span>
+                📍 Map Puzzle
+            </div>
+            <div class="task-content">
+                <p><strong>Match the place with the description:</strong></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>Places:</h4>
+                        <div class="options" id="places">
+                            <div class="option" data-id="A">A. Roman Baths</div>
+                            <div class="option" data-id="B">B. Royal Crescent</div>
+                            <div class="option" data-id="C">C. Bath Abbey</div>
+                            <div class="option" data-id="D">D. River Avon</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Descriptions:</h4>
+                        <ol style="margin: 0;">
+                            <li>A place with hot water and Roman history</li>
+                            <li>A big church in the city centre</li>
+                            <li>A long curved street with Georgian houses</li>
+                            <li>A river that crosses the city</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Write the correct letters in order (1–4):</label>
+                <input type="text" id="task1Answer" placeholder="Example: B D A C" maxlength="10">
+                <button class="btn btn-primary" onclick="checkTask1()">Submit Task 1</button>
+                <div class="message" id="task1Message"></div>
+            </div>
+            <div class="code-display" id="task1Code" style="display: none;">CODE: <span id="task1CodeValue"></span></div>
+        </div>
+
+        <!-- TASK 2: TIME MACHINE -->
+        <div class="task-card" id="task2">
+            <div class="task-title">
+                <span class="task-num">2</span>
+                🕒 Time Machine
+            </div>
+            <div class="task-content">
+                <p><strong>Put the events in the correct chronological order:</strong></p>
+                <div class="options" id="events">
+                    <div class="option" data-event="1">The Romans build the baths</div>
+                    <div class="option" data-event="2">Jane Austen lives in Bath</div>
+                    <div class="option" data-event="3">Bath becomes a UNESCO World Heritage Site</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Write the correct order (1–3):</label>
+                <input type="text" id="task2Answer" placeholder="Example: 3 1 2" maxlength="5">
+                <button class="btn btn-primary" onclick="checkTask2()">Submit Task 2</button>
+                <div class="message" id="task2Message"></div>
+            </div>
+            <div class="code-display" id="task2Code" style="display: none;">CODE: <span id="task2CodeValue"></span></div>
+        </div>
+
+        <!-- TASK 3: GRAMMAR LOCK -->
+        <div class="task-card" id="task3">
+            <div class="task-title">
+                <span class="task-num">3</span>
+                🔤 Grammar Lock
+            </div>
+            <div class="task-content">
+                <p><strong>Complete the sentences (count how many are correct):</strong></p>
+                <div style="margin: 20px 0;">
+                    <div class="form-group">
+                        <label>1. There _____ a famous Roman bath in Bath.</label>
+                        <select id="sent1" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="">-- Choose --</option>
+                            <option value="is">is</option>
+                            <option value="are">are</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>2. There _____ many Georgian houses.</label>
+                        <select id="sent2" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="">-- Choose --</option>
+                            <option value="is">is</option>
+                            <option value="are">are</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>3. The Romans _____ (build) the baths.</label>
+                        <select id="sent3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="">-- Choose --</option>
+                            <option value="built">built</option>
+                            <option value="build">build</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="checkTask3()">Submit Task 3</button>
+                <div class="message" id="task3Message"></div>
+            </div>
+            <div class="code-display" id="task3Code" style="display: none;">CODE: <span id="task3CodeValue"></span></div>
+        </div>
+
+        <!-- TASK 4: JANE AUSTEN CODE -->
+        <div class="task-card" id="task4">
+            <div class="task-title">
+                <span class="task-num">4</span>
+                📖 Jane Austen Code
+            </div>
+            <div class="task-content">
+                <p><strong>Match the sentence with the meaning:</strong></p>
+                <div class="matching-grid">
+                    <div class="matching-col">
+                        <div class="matching-item" data-match="A">A. Jane Austen lived in Bath.</div>
+                        <div class="matching-item" data-match="B">B. She wrote famous novels.</div>
+                        <div class="matching-item" data-match="C">C. Her stories are about love.</div>
+                    </div>
+                    <div class="matching-arrow">↔</div>
+                    <div class="matching-col">
+                        <div class="matching-item">1. Romantic stories</div>
+                        <div class="matching-item">2. Famous English writer</div>
+                        <div class="matching-item">3. City where she lived</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Write the correct order (A B C with their numbers):</label>
+                <input type="text" id="task4Answer" placeholder="Example: C1 A3 B2" maxlength="10">
+                <button class="btn btn-primary" onclick="checkTask4()">Submit Task 4</button>
+                <div class="message" id="task4Message"></div>
+            </div>
+            <div class="code-display" id="task4Code" style="display: none;">CODE: <span id="task4CodeValue"></span></div>
+        </div>
+
+        <!-- TASK 5: RIDDLE -->
+        <div class="task-card" id="task5">
+            <div class="task-title">
+                <span class="task-num">5</span>
+                🧩 Final Riddle
+            </div>
+            <div class="task-content">
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    <strong>I am a city in England.<br>
+                    I am famous for hot water.<br>
+                    Romans loved me.<br>
+                    What am I?</strong>
+                </p>
+            </div>
+            <div class="form-group">
+                <label>Write the answer:</label>
+                <input type="text" id="task5Answer" placeholder="Your answer..." class="riddle-answer">
+                <button class="btn btn-primary" onclick="checkTask5()">Submit Task 5</button>
+                <div class="message" id="task5Message"></div>
+            </div>
+            <div class="code-display" id="task5Code" style="display: none;">CODE: <span id="task5CodeValue"></span></div>
+        </div>
+
+        <!-- FINAL LOCK CARD -->
+        <div class="final-code-card">
+            <h2>🔓 FINAL LOCK</h2>
+            <p style="font-size: 1.1em; margin-bottom: 20px;">Combine all the codes in order:</p>
+            <div class="form-group">
+                <input type="text" id="finalCode" class="code-input" placeholder="Enter the final code here" maxlength="20">
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="checkFinalCode()">🔓 ESCAPE!</button>
+                    <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+            <div class="message" id="finalMessage"></div>
+        </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+        <div>
+            <h1>🎉 CONGRATULATIONS! 🎉</h1>
+            <p>You escaped from the Roman Baths!</p>
+            <p style="font-size: 1.3em; margin-top: 30px;">🏛️ You are now an official Tour Guide of Bath! 🏛️</p>
+            <button class="btn btn-primary" onclick="resetAll()" style="margin-top: 30px;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            codes: { 1: null, 2: null, 3: null, 4: null, 5: null },
+            timeRemaining: 30 * 60,
+            completed: { 1: false, 2: false, 3: false, 4: false, 5: false }
+        };
+
+        // Timer
+        function startTimer() {
+            setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimerDisplay();
+                if (gameState.timeRemaining <= 0) {
+                    gameState.timeRemaining = 0;
+                    showMessage('finalMessage', 'Time\'s up! Game Over. Reset and try again!', 'error');
+                    document.getElementById('finalCode').disabled = true;
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(gameState.timeRemaining / 60);
+            const secs = gameState.timeRemaining % 60;
+            const display = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('timeDisplay').textContent = display;
+            
+            const timerEl = document.getElementById('timer');
+            if (gameState.timeRemaining < 300) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        // Task 1: Map Puzzle
+        function checkTask1() {
+            const answer = document.getElementById('task1Answer').value.toUpperCase().trim();
+            // Remove all spaces and accept both formats: "ACBD" or "A C B D"
+            const cleanAnswer = answer.replace(/\s+/g, '');
+            const correct = cleanAnswer === 'ACBD';
+            
+            if (correct) {
+                gameState.codes[1] = 13; // Royal Crescent = 13 letters
+                gameState.completed[1] = true;
+                showMessage('task1Message', '✅ Correct! The longest place is "Royal Crescent" (13 letters)', 'success');
+                document.getElementById('task1Code').style.display = 'block';
+                document.getElementById('task1CodeValue').textContent = '13';
+                updateProgress();
+            } else {
+                showMessage('task1Message', '❌ Not quite right. Try again! (Correct answer: A C B D)', 'error');
+            }
+        }
+
+        // Task 2: Time Machine
+        function checkTask2() {
+            const answer = document.getElementById('task2Answer').value.trim();
+            const correct = answer === '1 2 3' || answer === '123';
+            
+            if (correct) {
+                gameState.codes[2] = 1; // First number
+                gameState.completed[2] = true;
+                showMessage('task2Message', '✅ Correct! The order is: Romans → Jane Austen → UNESCO (code: 1)', 'success');
+                document.getElementById('task2Code').style.display = 'block';
+                document.getElementById('task2CodeValue').textContent = '1';
+                updateProgress();
+            } else {
+                showMessage('task2Message', '❌ Chronological order incorrect. Try again!', 'error');
+            }
+        }
+
+        // Task 3: Grammar Lock
+        function checkTask3() {
+            const sent1 = document.getElementById('sent1').value;
+            const sent2 = document.getElementById('sent2').value;
+            const sent3 = document.getElementById('sent3').value;
+            
+            let correct = 0;
+            if (sent1 === 'is') correct++;
+            if (sent2 === 'are') correct++;
+            if (sent3 === 'built') correct++;
+            
+            if (correct === 3) {
+                gameState.codes[3] = 3;
+                gameState.completed[3] = true;
+                showMessage('task3Message', '✅ Perfect! All three sentences are correct!', 'success');
+                document.getElementById('task3Code').style.display = 'block';
+                document.getElementById('task3CodeValue').textContent = '3';
+                updateProgress();
+            } else {
+                showMessage('task3Message', `❌ You got ${correct}/3 correct. Try again!`, 'error');
+            }
+        }
+
+        // Task 4: Jane Austen Code
+        function checkTask4() {
+            const answer = document.getElementById('task4Answer').value.toUpperCase().trim();
+            // Remove all spaces and accept both formats: "A3B2C1" or "A 3 B 2 C 1"
+            const cleanAnswer = answer.replace(/\s+/g, '');
+            const correct = cleanAnswer === 'A3B2C1';
+            
+            if (correct) {
+                gameState.codes[4] = 2; // Position of B
+                gameState.completed[4] = true;
+                showMessage('task4Message', '✅ Correct! B is in the 2nd position (code: 2)', 'success');
+                document.getElementById('task4Code').style.display = 'block';
+                document.getElementById('task4CodeValue').textContent = '2';
+                updateProgress();
+            } else {
+                showMessage('task4Message', '❌ Matching incorrect. Try again! (Correct answer: A3 B2 C1)', 'error');
+            }
+        }
+
+        // Task 5: Riddle
+        function checkTask5() {
+            const answer = document.getElementById('task5Answer').value.toLowerCase().trim();
+            const correct = answer === 'bath';
+            
+            if (correct) {
+                gameState.codes[5] = 4; // "Bath" = 4 letters
+                gameState.completed[5] = true;
+                showMessage('task5Message', '✅ Correct! BATH has 4 letters (code: 4)', 'success');
+                document.getElementById('task5Code').style.display = 'block';
+                document.getElementById('task5CodeValue').textContent = '4';
+                updateProgress();
+            } else {
+                showMessage('task5Message', '❌ Wrong answer. Try again!', 'error');
+            }
+        }
+
+        // Final Code Check
+        function checkFinalCode() {
+            const finalInput = document.getElementById('finalCode').value.trim();
+            const expected = '13 1 3 2 4';
+            const expectedNoSpace = '131324';
+            
+            if (finalInput === expected || finalInput === expectedNoSpace) {
+                showMessage('finalMessage', '🔓 CORRECT! You escaped!', 'success');
+                setTimeout(() => {
+                    document.getElementById('successScreen').classList.add('show');
+                    createConfetti();
+                }, 500);
+            } else {
+                showMessage('finalMessage', '❌ Incorrect code. Check your answers!', 'error');
+            }
+        }
+
+        // Helper Functions
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = `message show ${type}`;
+        }
+
+        function updateProgress() {
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`code${i}`);
+                const progressEl = document.querySelector(`.progress-item:nth-child(${i})`);
+                if (gameState.codes[i] !== null) {
+                    el.textContent = gameState.codes[i];
+                    progressEl.classList.add('completed');
+                } else {
+                    el.textContent = '?';
+                    progressEl.classList.remove('completed');
+                }
+            }
+        }
+
+        function resetAll() {
+            gameState.codes = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            gameState.timeRemaining = 30 * 60;
+            gameState.completed = { 1: false, 2: false, 3: false, 4: false, 5: false };
+            
+            document.getElementById('task1Answer').value = '';
+            document.getElementById('task2Answer').value = '';
+            document.getElementById('sent1').value = '';
+            document.getElementById('sent2').value = '';
+            document.getElementById('sent3').value = '';
+            document.getElementById('task4Answer').value = '';
+            document.getElementById('task5Answer').value = '';
+            document.getElementById('finalCode').value = '';
+            
+            document.querySelectorAll('.message').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.code-display').forEach(el => el.style.display = 'none');
+            document.getElementById('successScreen').classList.remove('show');
+            
+            updateProgress();
+            updateTimerDisplay();
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f39c12'][Math.floor(Math.random() * 5)];
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // Initialize
+        startTimer();
+        updateProgress();
+        
+        // Hide success screen on load
+        document.getElementById('successScreen').classList.remove('show');
+    </script>
+</body>
+</html>
